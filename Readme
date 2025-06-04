@@ -1,0 +1,35 @@
+# IMU IPC Driver (Publisher & Consumer)
+
+This repository contains two Python scripts that demonstrate a simple IPC driver for streaming IMU data over a Unix-domain socket:
+
+1. **publisher.py**: Generates random IMU payloads at a configurable rate (in Hz) and sends them over a Unix socket.
+2. **consumer.py**: Connects to the publisher’s Unix socket, receives IMU payloads, parses them, and computes orientation (roll, pitch, yaw) plus a quaternion.
+
+These scripts are designed to run on Debian-based Linux (e.g., Ubuntu) and require Python 3.6+.
+
+---
+
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Setup](#setup)
+3. [Usage](#usage)
+4. [Assumptions & Notes](#assumptions--notes)
+
+---
+
+## Prerequisites
+
+- **Python 3.6+** (tested on Python 3.8 & 3.10)
+- Standard library modules only (`socket`, `argparse`, `logging`, `math`, etc.)
+- No external dependencies; both scripts use only Python standard library.
+
+---
+
+## Setup
+
+1. **Clone or unzip** this repository:
+
+   ```bash
+   git clone https://github.com/your-username/imu_ipc_driver.git
+   cd imu_ipc_driver
