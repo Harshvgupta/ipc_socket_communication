@@ -1,36 +1,4 @@
 #!/usr/bin/env python3
-"""
-consumer.py
-
-A Unix-domain IPC consumer that connects to a publisher's socket, receives IMU payloads,
-parses each CSV line of 12 values, computes orientation (roll, pitch, yaw, quaternion), and optionally
-writes a rolling CSV of orientations to disk.
-
-Usage:
-    python3 consumer.py \
-      --socket-path /tmp/imu_socket \
-      --timeout-ms 100 \
-      --log-dir /var/log/imu_consumer \
-      --log-level INFO \
-      --output-csv /tmp/imu_orientations.csv
-
-CLI Options:
-  --socket-path PATH
-      Path to the Unix-domain socket (e.g. /tmp/imu_socket).
-  --timeout-ms M
-      Milliseconds to wait for data before timeout (default=100).
-  --output-csv PATH
-      If provided, append 'timestamp_ms,roll_deg,pitch_deg,yaw_deg' rows to this CSV.
-  --log-dir DIR
-      Directory for rotating log files; if omitted, logs only to console.
-  --log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
-      Logging verbosity (default=INFO).
-
-Requirements:
-  - Python 3.6+
-  - Standard library only.
-"""
-
 import argparse
 import logging
 import logging.handlers
@@ -44,10 +12,7 @@ from typing import Optional, Tuple
 
 def compute_roll_pitch_from_accel(x_acc: float, y_acc: float, z_acc: float) -> Tuple[float, float]:
     """
-    Compute roll & pitch (radians) from accelerometer:
-      roll  = atan2(y_acc, z_acc)
-      pitch = atan2(-x_acc, sqrt(y_acc^2 + z_acc^2))
-    We do NOT clamp pitch here; if denominator = 0, we return pitch=±pi/2.
+    Compute roll & pitch (radians) from accelerometer
 
     Args:
         x_acc (float): Accelerometer X in mg.
@@ -75,10 +40,6 @@ def compute_yaw_from_mag(x_mag: float, y_mag: float, z_mag: float,
                          roll: float, pitch: float) -> float:
     """
     Compute yaw (radians) from magnetometer + current roll/pitch.
-    Tilt compensation formula:
-        mag_xc = x_mag * cos(pitch) + z_mag * sin(pitch)
-        mag_yc = x_mag * sin(roll)*sin(pitch) + y_mag * cos(roll) - z_mag * sin(roll)*cos(pitch)
-        yaw = atan2(-mag_yc, mag_xc)
 
     Args:
         x_mag, y_mag, z_mag (float): Magnetometer readings in mGauss.
@@ -128,9 +89,7 @@ def euler_to_quaternion(roll: float, pitch: float, yaw: float) -> Tuple[float, f
 
 class IMUConsumer:
     """
-    IMUConsumer connects to a Unix-domain socket, receives lines of CSV (or special tags),
-    parses valid 12-value IMU payloads, computes orientation, optionally writes CSV of
-    (timestamp, roll_deg, pitch_deg, yaw_deg), and logs everything.
+    IMUConsumer connects to a Unix-domain socket.
     """
 
     RECONNECT_DELAY_SEC = 1.0  # seconds before retrying to connect

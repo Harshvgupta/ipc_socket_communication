@@ -1,41 +1,4 @@
 #!/usr/bin/env python3
-"""
-publisher.py
-
-A Unix-domain IPC publisher that emits random (or test‐mode) IMU sensor payloads at a configurable frequency.
-This version adds:
-  1. Optional "heartbeat" packets every N data payloads.
-  2. Better error handling and logging (rotating file logger + console).
-  3. A "test‐mode" flag to deliberately inject malformed lines.
-
-Usage:
-    python3 publisher.py \
-      --socket-path /tmp/imu_socket \
-      --frequency-hz 500 \
-      --log-dir /var/log/imu_publisher \
-      --heartbeat-every 1000 \
-      --test-mode false \
-      --log-level INFO
-
-CLI Options:
-  --socket-path PATH
-      Path to the Unix-domain socket to bind (e.g. /tmp/imu_socket).
-  --frequency-hz N
-      Number of IMU payloads per second (default=100).
-  --heartbeat-every M
-      Every M payloads, send a heartbeat line ("HEARTBEAT,<timestamp>"). Set 0 to disable.
-  --test-mode {true,false}
-      If true, periodically send an intentionally malformed line to test consumer robustness.
-  --log-dir DIR
-      Directory where rotated log files will be written. If omitted, logs only to stdout.
-  --log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
-      Logging verbosity (default=INFO).
-
-Requirements:
-  - Debian/Ubuntu environment (or any Unix).
-  - Python 3.6+
-  - Standard library only (no extra pip installs).
-"""
 
 import argparse
 import logging
@@ -47,9 +10,7 @@ import time
 import random
 from typing import Tuple
 
-# =============================================================================
-# Helper: IMU payload generation
-# =============================================================================
+
 def generate_imu_payload() -> Tuple[float, float, float, int,
                                     int, int, int, int,
                                     float, float, float, int]:
@@ -98,17 +59,10 @@ def generate_imu_payload() -> Tuple[float, float, float, int,
             xMag, yMag, zMag, timestampMag)
 
 
-# =============================================================================
-# Main Publisher Class
-# =============================================================================
+
 class IMUPublisher:
     """
     IMUPublisher binds to a Unix-domain socket and waits for a single consumer to connect.
-    Once connected, it sends either:
-      - A well-formed IMU payload (12 CSV values + newline), or
-      - Occasionally a HEARTBEAT packet ("HEARTBEAT,<timestamp>\n"), or
-      - If in test-mode, occasionally a malformed line ("MALFORMED_DATA").
-
     Tracks how many payloads have been sent, and uses a rotating file handler for logs.
     """
 
@@ -141,8 +95,6 @@ class IMUPublisher:
     def _setup_logging(self) -> logging.Logger:
         """
         Configure logging:
-          - Console handler (always).
-          - RotatingFileHandler if log_dir is specified.
         """
         logger = logging.getLogger("IMUPublisher")
         level = getattr(logging, self.log_level, logging.INFO)
@@ -227,10 +179,6 @@ class IMUPublisher:
         """
         Send IMU or heartbeat or malformed lines in a tight loop at frequency_hz.
 
-        - Every heartbeat_every payloads: send "HEARTBEAT,<timestamp>\n".
-        - If test_mode=True and self._payload_count % 500 == 0: send "MALFORMED_DATA\n".
-        - Otherwise: send normal 12-value CSV.
-
         Raises:
             Exception: for any send failure.
         """
@@ -276,9 +224,6 @@ class IMUPublisher:
             time.sleep(interval)
 
 
-# =============================================================================
-# CLI argument parsing
-# =============================================================================
 def parse_args():
     parser = argparse.ArgumentParser(description="IMU Publisher (Unix-domain IPC)")
 
@@ -311,9 +256,6 @@ def parse_args():
     return parser.parse_args()
 
 
-# =============================================================================
-# Entrypoint
-# =============================================================================
 if __name__ == "__main__":
     args = parse_args()
     try:

@@ -31,5 +31,12 @@ These scripts are designed to run on Debian-based Linux (e.g., Ubuntu) and requi
 1. **Clone or unzip** this repository:
 
    ```bash
-   git clone https://github.com/your-username/imu_ipc_driver.git
+   git clone https://github.com/Harshvgupta/ipc_socket_communication.git
    cd imu_ipc_driver
+   example commands to run it 
+   Open two terminal and run these commands.
+
+   1.python3 publisher.py   --socket-path /tmp/imu_socket   --log-level DEBUG   --frequency-hz 500
+
+   2.python3 consumer.py   --socket-path /tmp/imu_socket   --timeout-ms 100   --log-dir ./logs   --log-level DEBUG
+
