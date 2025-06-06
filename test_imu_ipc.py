@@ -20,8 +20,8 @@ import math
 
 # Import the IMUConsumer and IMUPublisher classes directly
 # (Assume publisher.py and consumer.py are in the same directory or installed in PYTHONPATH)
-from con import IMUConsumer
-from pub import generate_imu_payload
+from consumer import IMUConsumer
+from publisher import generate_imu_payload
 
 class FakePublisherThread(threading.Thread):
     """

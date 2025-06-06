@@ -138,12 +138,6 @@ class IMUPublisher:
         self.server_socket = None
         self._payload_count = 0
 
-        # Sanity checks
-        if self.frequency_hz <= 0:
-            raise ValueError("frequency_hz must be > 0")
-        if self.heartbeat_every < 0:
-            raise ValueError("heartbeat_every cannot be negative")
-
     def _setup_logging(self) -> logging.Logger:
         """
         Configure logging:
@@ -181,12 +175,7 @@ class IMUPublisher:
         If the Unix-domain socket file already exists, remove it before binding.
         """
         if os.path.exists(self.socket_path):
-            try:
-                os.remove(self.socket_path)
-                self.logger.debug(f"Removed existing socket file: {self.socket_path}")
-            except OSError as e:
-                self.logger.error(f"Failed to remove existing socket file: {e}")
-                raise
+            os.remove(self.socket_path)
 
     def run(self):
         """
@@ -215,31 +204,23 @@ class IMUPublisher:
                     self.logger.info("Interrupted by user. Shutting down.")
                     break
                 except Exception as e:
-                    self.logger.error(f"Accept() failed: {e}")
+                    self.logger.error(f"Accept failed: {e}")
                     continue
 
                 self.logger.info("Consumer connected. Entering send loop.")
                 try:
                     self._send_loop(conn)
-                except BrokenPipeError:
-                    self.logger.warning("Consumer disconnected (BrokenPipe).")
                 except Exception as e:
-                    self.logger.error(f"Exception in send loop: {e}")
+                    self.logger.warning(f"Send loop error: {e}")
                 finally:
-                    try:
-                        conn.close()
-                    except Exception:
-                        pass
+                    conn.close()
                     self.logger.info("Connection closed. Returning to listening state.")
 
         finally:
             if self.server_socket:
                 self.server_socket.close()
             if os.path.exists(self.socket_path):
-                try:
-                    os.remove(self.socket_path)
-                except Exception:
-                    pass
+                os.remove(self.socket_path)
             self.logger.info("Publisher cleanly shut down.")
 
     def _send_loop(self, conn: socket.socket):
@@ -251,7 +232,6 @@ class IMUPublisher:
         - Otherwise: send normal 12-value CSV.
 
         Raises:
-            BrokenPipeError: if client disconnects.
             Exception: for any send failure.
         """
         interval = 1.0 / self.frequency_hz
@@ -288,10 +268,8 @@ class IMUPublisher:
             try:
                 conn.sendall(data_bytes)
                 self.logger.debug(f"Sent: {line_to_send.strip()}")
-            except BrokenPipeError:
-                raise
             except Exception as e:
-                self.logger.error(f"Socket send error: {e}")
+                self.logger.error(f"Send failed: {e}")
                 raise
 
             self._payload_count += 1
