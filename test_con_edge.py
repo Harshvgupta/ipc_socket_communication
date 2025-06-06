@@ -24,7 +24,6 @@ import threading
 # Adjust these imports if your modules are named differently:
 from con import IMUConsumer
 from pub import generate_imu_payload
-from dashboard import Dashboard
 
 # Helper to format a valid IMU CSV line (no trailing newline).
 def make_valid_imu_line(xAcc, yAcc, zAcc, timestampAcc,
@@ -55,7 +54,6 @@ class TestProcessLineValidAndHeartbeat(unittest.TestCase):
             output_csv=self.tmp_csv_path,
             log_dir="",       # console-only logging
             log_level="DEBUG",
-            use_dashboard=False
         )
 
     def tearDown(self):
@@ -123,7 +121,6 @@ class TestProcessLineMalformedAndGimbalLock(unittest.TestCase):
             output_csv="",  # no CSV writing
             log_dir="",
             log_level="DEBUG",
-            use_dashboard=False
         )
 
     def test_too_few_fields(self):
@@ -161,23 +158,6 @@ class TestProcessLineMalformedAndGimbalLock(unittest.TestCase):
         self.consumer._process_line(line)
 
 
-class TestDashboardThread(unittest.TestCase):
-    def test_dashboard_starts_and_stops(self):
-        shared_list = []
-        dashboard = Dashboard(shared_list, refresh_interval=0.2, max_entries=3)
-        dashboard.start()
-
-        # Wait briefly, then populate shared_list
-        time.sleep(0.1)
-        shared_list.append((111, 10.0, 20.0, 30.0))
-        shared_list.append((222, 11.0, 21.0, 31.0))
-        time.sleep(0.3)  # allow at least one print cycle
-
-        # Now stop the dashboard
-        dashboard.stop()
-        dashboard.join(timeout=1.0)
-        self.assertFalse(dashboard.is_alive())
-
 
 class TestIMUConsumerFullIntegration(unittest.TestCase):
     """
@@ -196,7 +176,6 @@ class TestIMUConsumerFullIntegration(unittest.TestCase):
             output_csv="",  # no CSV
             log_dir="",
             log_level="DEBUG",
-            use_dashboard=False
         )
         # Monkey‐patch the consumer’s socket and fileobj so run() uses these directly
         self.consumer.sock = self.consumer_sock
