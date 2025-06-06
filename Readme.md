@@ -12,21 +12,21 @@ This project implements a robust publisher-consumer architecture for IMU (Inerti
 
 ## Features
 
-###  **Core Functionality**
+### Core Functionality
 - Unix domain socket IPC communication
 - 12-value IMU payload matching industry-standard struct format
 - Real-time orientation computation (roll, pitch, yaw + quaternions)
 - Sensor fusion from accelerometer and magnetometer data
 - Gimbal lock detection and warnings
 
-###  **Robustness**
+### Robustness
 - Comprehensive error handling for network failures, timeouts, malformed data
 - Automatic reconnection on publisher/consumer disconnect
 - Configurable retry logic and timeout management
 - Extensive logging with rotating file handlers
 - Built-in test mode for robustness validation
 
-###  **Configurability**
+### Configurability
 - Fully configurable via CLI arguments
 - Adjustable transmission frequency (1-1000+ Hz)
 - Multiple log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
@@ -97,24 +97,24 @@ python3 consumer.py \
 
 ### Publisher Parameters
 
-| Parameter           | Required | Default | Description |
-|---------------------|----------|---------|-------------|
-| `--socket-path`     | ✅       | -       | Unix domain socket file path |
-| `--frequency-hz`    | ❌       | 100     | IMU data transmission rate (Hz) |
-| `--log-level`       | ❌       | INFO    | Logging verbosity level |
-| `--log-dir`         | ❌       | ""      | Directory for rotating log files |
-| `--heartbeat-every` | ❌       | 0       | Send heartbeat every N packets (0=disabled) |
-| `--test-mode`       | ❌       | false   | Inject malformed data for testing |
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| --socket-path | Yes | - | Unix domain socket file path |
+| --frequency-hz | No | 100 | IMU data transmission rate (Hz) |
+| --log-level | No | INFO | Logging verbosity level |
+| --log-dir | No | "" | Directory for rotating log files |
+| --heartbeat-every | No | 0 | Send heartbeat every N packets (0=disabled) |
+| --test-mode | No | false | Inject malformed data for testing |
 
 ### Consumer Parameters
 
-| Parameter      | Required  | Default | Description |
-|----------------|-----------|---------|-------------|
-| `--socket-path`| ✅        | -       | Unix domain socket file path |
-| `--timeout-ms` | ❌        | 100     | Socket read timeout (milliseconds) |
-| `--log-level`  | ❌        | INFO    | Logging verbosity level |
-| `--log-dir`    | ❌        | ""      | Directory for rotating log files |
-| `--output-csv` | ❌        | ""      | CSV file path for orientation output |
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| --socket-path | Yes | - | Unix domain socket file path |
+| --timeout-ms | No | 100 | Socket read timeout (milliseconds) |
+| --log-level | No | INFO | Logging verbosity level |
+| --log-dir | No | "" | Directory for rotating log files |
+| --output-csv | No | "" | CSV file path for orientation output |
 
 ### Log Levels
 - `DEBUG`: Detailed packet-level information
@@ -169,7 +169,7 @@ timestamp_ms,roll_deg,pitch_deg,yaw_deg
 1721931960,15.1800,-8.5200,185.7100
 ```
 
-## Architecture & Design
+## Architecture and Design
 
 ### Communication Flow
 ```
@@ -227,7 +227,7 @@ python3 publisher.py --socket-path /tmp/drone_imu --frequency-hz 500 &
 python3 consumer.py --socket-path /tmp/drone_imu --output-csv /var/log/drone_orientation.csv
 ```
 
-### Development & Debugging
+### Development and Debugging
 ```bash
 # Debug mode with detailed logging
 python3 publisher.py --socket-path /tmp/debug --frequency-hz 10 --log-level DEBUG --test-mode true &
@@ -296,7 +296,7 @@ ps aux | grep consumer
 
 ### Optimization Tips
 1. **High Frequency**: Use dedicated CPU cores for RT performance
-2. **Low Latency**: Minimize timeout values (`--timeout-ms 10`)
+2. **Low Latency**: Minimize timeout values (--timeout-ms 10)
 3. **Logging**: Use INFO level for production, DEBUG only for development
 4. **File I/O**: Place CSV output on SSD for high-frequency logging
 
@@ -324,7 +324,7 @@ python3 consumer.py --log-dir ./logs --socket-path /tmp/imu_socket
 
 ### Orientation Computation
 
-#### Roll & Pitch from Accelerometer
+#### Roll and Pitch from Accelerometer
 ```
 roll = atan2(yAcc, zAcc)
 pitch = atan2(-xAcc, sqrt(yAcc² + zAcc²))
@@ -345,7 +345,7 @@ qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(
 qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2)
 ```
 
-## Assumptions & Limitations
+## Assumptions and Limitations
 
 ### Assumptions Made
 1. **Coordinate System**: Standard NED (North-East-Down) orientation
@@ -362,12 +362,12 @@ qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(
 5. **Text Protocol**: CSV overhead vs. binary protocols
 
 ### Future Enhancements
-- [ ] Real-time task scheduling (SCHED_FIFO)
-- [ ] Kalman filter implementation
-- [ ] Multi-consumer support
-- [ ] Binary protocol option
-- [ ] Sensor calibration routines
-- [ ] Web-based monitoring dashboard
+- Real-time task scheduling (SCHED_FIFO)
+- Kalman filter implementation
+- Multi-consumer support
+- Binary protocol option
+- Sensor calibration routines
+- Web-based monitoring dashboard
 
 ## License
 
@@ -376,9 +376,9 @@ This project is provided as-is for educational and development purposes.
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (git checkout -b feature/amazing-feature)
+3. Commit your changes (git commit -m 'Add amazing feature')
+4. Push to the branch (git push origin feature/amazing-feature)
 5. Open a Pull Request
 
 ## Support
